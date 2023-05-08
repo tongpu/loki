@@ -118,7 +118,9 @@ var queryTests = []struct {
                     "splits": 0,
 					"subqueries": 0,
 					"totalBytesProcessed":0,
-                                        "totalEntriesReturned":0,
+					"totalDuplicatedBytesProcessed":0,
+					"totalDeduplicatedBytesProcessed":0,
+					"totalEntriesReturned":0,
 					"totalLinesProcessed":0
 				}
 			}

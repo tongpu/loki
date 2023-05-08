@@ -127,6 +127,8 @@ func RecordRangeAndInstantQueryMetrics(
 		"returned_lines", returnedLines,
 		"throughput", strings.Replace(humanize.Bytes(uint64(stats.Summary.BytesProcessedPerSecond)), " ", "", 1),
 		"total_bytes", strings.Replace(humanize.Bytes(uint64(stats.Summary.TotalBytesProcessed)), " ", "", 1),
+		"total_duplicate_bytes", strings.Replace(humanize.Bytes(uint64(stats.Summary.TotalDuplicatedBytesProcessed)), " ", "", 1),
+		"total_deduplicated_bytes", strings.Replace(humanize.Bytes(uint64(stats.Summary.TotalDeduplicatedBytesProcessed)), " ", "", 1),
 		"lines_per_second", stats.Summary.LinesProcessedPerSecond,
 		"total_lines", stats.Summary.TotalLinesProcessed,
 		"total_entries", stats.Summary.TotalEntriesReturned,

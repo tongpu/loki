@@ -68,6 +68,10 @@ message Summary {
   int64 totalEntriesReturned = 8 [(gogoproto.jsontag) = "totalEntriesReturned"];
   int64 splits = 9 [(gogoproto.jsontag) = "splits"];
   int64 shards = 10 [(gogoproto.jsontag) = "shards"];
+  // Total unique bytes processed.
+  int64 totalDuplicatedBytesProcessed = 11 [(gogoproto.jsontag) = "totalDuplicatedBytesProcessed"];
+  // Total unique bytes processed.
+  int64 totalDeduplicatedBytesProcessed = 12 [(gogoproto.jsontag) = "totalDeduplicatedBytesProcessed"];
 }
 
 message Querier {

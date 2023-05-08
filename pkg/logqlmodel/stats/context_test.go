@@ -78,13 +78,15 @@ func TestResult(t *testing.T) {
 			},
 		},
 		Summary: Summary{
-			ExecTime:                2 * time.Second.Seconds(),
-			QueueTime:               2 * time.Nanosecond.Seconds(),
-			BytesProcessedPerSecond: int64(42),
-			LinesProcessedPerSecond: int64(50),
-			TotalBytesProcessed:     int64(84),
-			TotalLinesProcessed:     int64(100),
-			TotalEntriesReturned:    int64(10),
+			ExecTime:                        2 * time.Second.Seconds(),
+			QueueTime:                       2 * time.Nanosecond.Seconds(),
+			BytesProcessedPerSecond:         int64(42),
+			LinesProcessedPerSecond:         int64(50),
+			TotalBytesProcessed:             int64(84),
+			TotalLinesProcessed:             int64(100),
+			TotalEntriesReturned:            int64(10),
+			TotalDuplicatedBytesProcessed:   int64(12 * 1024),
+			TotalDeduplicatedBytesProcessed: int64(84 - (12 * 1024)),
 		},
 	}
 	require.Equal(t, expected, res)
@@ -127,13 +129,15 @@ func TestSnapshot_JoinResults(t *testing.T) {
 			},
 		},
 		Summary: Summary{
-			ExecTime:                2 * time.Second.Seconds(),
-			QueueTime:               2 * time.Nanosecond.Seconds(),
-			BytesProcessedPerSecond: int64(42),
-			LinesProcessedPerSecond: int64(50),
-			TotalBytesProcessed:     int64(84),
-			TotalLinesProcessed:     int64(100),
-			TotalEntriesReturned:    int64(10),
+			ExecTime:                        2 * time.Second.Seconds(),
+			QueueTime:                       2 * time.Nanosecond.Seconds(),
+			BytesProcessedPerSecond:         int64(42),
+			LinesProcessedPerSecond:         int64(50),
+			TotalBytesProcessed:             int64(84),
+			TotalLinesProcessed:             int64(100),
+			TotalEntriesReturned:            int64(10),
+			TotalDuplicatedBytesProcessed:   int64(12 * 1024),
+			TotalDeduplicatedBytesProcessed: int64(84 - (12 * 1024)),
 		},
 	}
 
@@ -217,12 +221,14 @@ func TestResult_Merge(t *testing.T) {
 			},
 		},
 		Summary: Summary{
-			ExecTime:                2 * time.Second.Seconds(),
-			QueueTime:               2 * time.Nanosecond.Seconds(),
-			BytesProcessedPerSecond: int64(42),
-			LinesProcessedPerSecond: int64(50),
-			TotalBytesProcessed:     int64(84),
-			TotalLinesProcessed:     int64(100),
+			ExecTime:                        2 * time.Second.Seconds(),
+			QueueTime:                       2 * time.Nanosecond.Seconds(),
+			BytesProcessedPerSecond:         int64(42),
+			LinesProcessedPerSecond:         int64(50),
+			TotalBytesProcessed:             int64(84),
+			TotalLinesProcessed:             int64(100),
+			TotalDuplicatedBytesProcessed:   int64(12 * 1024),
+			TotalDeduplicatedBytesProcessed: int64(84 - (12 * 1024)),
 		},
 	}
 
@@ -280,12 +286,14 @@ func TestResult_Merge(t *testing.T) {
 			},
 		},
 		Summary: Summary{
-			ExecTime:                2 * 2 * time.Second.Seconds(),
-			QueueTime:               2 * 2 * time.Nanosecond.Seconds(),
-			BytesProcessedPerSecond: int64(42), // 2 requests at the same pace should give the same bytes/lines per sec
-			LinesProcessedPerSecond: int64(50),
-			TotalBytesProcessed:     2 * int64(84),
-			TotalLinesProcessed:     2 * int64(100),
+			ExecTime:                        2 * 2 * time.Second.Seconds(),
+			QueueTime:                       2 * 2 * time.Nanosecond.Seconds(),
+			BytesProcessedPerSecond:         int64(42), // 2 requests at the same pace should give the same bytes/lines per sec
+			LinesProcessedPerSecond:         int64(50),
+			TotalBytesProcessed:             2 * int64(84),
+			TotalLinesProcessed:             2 * int64(100),
+			TotalDuplicatedBytesProcessed:   2 * int64(12*1024),
+			TotalDeduplicatedBytesProcessed: 2 * int64(84-(12*1024)),
 		},
 	}, res)
 }

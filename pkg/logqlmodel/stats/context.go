@@ -148,6 +148,8 @@ func JoinIngesters(ctx context.Context, inc Ingester) {
 func (r *Result) ComputeSummary(execTime time.Duration, queueTime time.Duration, totalEntriesReturned int) {
 	r.Summary.TotalBytesProcessed = r.Querier.Store.Chunk.DecompressedBytes + r.Querier.Store.Chunk.HeadChunkBytes +
 		r.Ingester.Store.Chunk.DecompressedBytes + r.Ingester.Store.Chunk.HeadChunkBytes
+	r.Summary.TotalDuplicatedBytesProcessed = r.Querier.Store.Chunk.DuplicateBytes + r.Ingester.Store.Chunk.DuplicateBytes
+	r.Summary.TotalDeduplicatedBytesProcessed = r.Summary.TotalBytesProcessed - r.Summary.TotalDuplicatedBytesProcessed
 	r.Summary.TotalLinesProcessed = r.Querier.Store.Chunk.DecompressedLines + r.Querier.Store.Chunk.HeadChunkLines +
 		r.Ingester.Store.Chunk.DecompressedLines + r.Ingester.Store.Chunk.HeadChunkLines
 	r.Summary.ExecTime = execTime.Seconds()
@@ -421,7 +423,7 @@ func (r Result) Log(log log.Logger) {
 		"Ingester.DecompressedLines", r.Ingester.Store.Chunk.DecompressedLines,
 		"Ingester.CompressedBytes", humanize.Bytes(uint64(r.Ingester.Store.Chunk.CompressedBytes)),
 		"Ingester.TotalDuplicates", r.Ingester.Store.Chunk.TotalDuplicates,
-		"Ingester.DuplicateBytes", r.Ingester.Store.Chunk.DuplicateBytes,
+		"Ingester.DuplicateBytes", humanize.Bytes(uint64(r.Ingester.Store.Chunk.DuplicateBytes)),
 
 		"Querier.TotalChunksRef", r.Querier.Store.TotalChunksRef,
 		"Querier.TotalChunksDownloaded", r.Querier.Store.TotalChunksDownloaded,
@@ -432,7 +434,7 @@ func (r Result) Log(log log.Logger) {
 		"Querier.DecompressedLines", r.Querier.Store.Chunk.DecompressedLines,
 		"Querier.CompressedBytes", humanize.Bytes(uint64(r.Querier.Store.Chunk.CompressedBytes)),
 		"Querier.TotalDuplicates", r.Querier.Store.Chunk.TotalDuplicates,
-		"Querier.DuplicateBytes", r.Querier.Store.Chunk.DuplicateBytes,
+		"Querier.DuplicateBytes", humanize.Bytes(uint64(r.Querier.Store.Chunk.DuplicateBytes)),
 	)
 	r.Caches.Log(log)
 	r.Summary.Log(log)

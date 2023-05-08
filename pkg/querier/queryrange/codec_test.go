@@ -1054,7 +1054,9 @@ var (
 			"subqueries": 0,
 			"totalBytesProcessed": 24,
 			"totalEntriesReturned": 10,
-			"totalLinesProcessed": 25
+			"totalLinesProcessed": 25,
+			"totalDuplicatedBytesProcessed": 28,
+			"totalDeduplicatedBytesProcessed": 29
 		}
 	},`
 	matrixString = `{
@@ -1205,13 +1207,15 @@ var (
 	labelsData  = []string{"foo", "bar"}
 	statsResult = stats.Result{
 		Summary: stats.Summary{
-			BytesProcessedPerSecond: 20,
-			QueueTime:               21,
-			ExecTime:                22,
-			LinesProcessedPerSecond: 23,
-			TotalBytesProcessed:     24,
-			TotalLinesProcessed:     25,
-			TotalEntriesReturned:    10,
+			BytesProcessedPerSecond:         20,
+			QueueTime:                       21,
+			ExecTime:                        22,
+			LinesProcessedPerSecond:         23,
+			TotalBytesProcessed:             24,
+			TotalLinesProcessed:             25,
+			TotalEntriesReturned:            10,
+			TotalDuplicatedBytesProcessed:   28,
+			TotalDeduplicatedBytesProcessed: 29,
 		},
 		Querier: stats.Querier{
 			Store: stats.Store{

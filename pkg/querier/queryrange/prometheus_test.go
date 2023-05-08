@@ -87,6 +87,8 @@ var emptyStats = `"stats": {
 		"shards": 0,
 		"subqueries": 0,
 		"totalBytesProcessed":0,
+		"totalDeduplicatedBytesProcessed":0,
+		"totalDuplicatedBytesProcessed":0,
 		"totalEntriesReturned":0,
 		"totalLinesProcessed":0
 	}
