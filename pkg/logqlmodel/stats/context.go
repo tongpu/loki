@@ -445,6 +445,8 @@ func (s Summary) Log(log log.Logger) {
 		"Summary.BytesProcessedPerSecond", humanize.Bytes(uint64(s.BytesProcessedPerSecond)),
 		"Summary.LinesProcessedPerSecond", s.LinesProcessedPerSecond,
 		"Summary.TotalBytesProcessed", humanize.Bytes(uint64(s.TotalBytesProcessed)),
+		"Summary.TotalDuplicateBytesProcessed", humanize.Bytes(uint64(s.TotalDuplicatedBytesProcessed)),
+		"Summary.TotalDeduplicateBytesProcessed", humanize.Bytes(uint64(s.TotalDeduplicatedBytesProcessed)),
 		"Summary.TotalLinesProcessed", s.TotalLinesProcessed,
 		"Summary.ExecTime", ConvertSecondsToNanoseconds(s.ExecTime),
 		"Summary.QueueTime", ConvertSecondsToNanoseconds(s.QueueTime),
