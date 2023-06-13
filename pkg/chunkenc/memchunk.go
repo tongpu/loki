@@ -1084,7 +1084,7 @@ func (hb *headBlock) Iterator(ctx context.Context, direction logproto.Direction,
 			return
 		}
 		stats.AddHeadChunkBytes(int64(len(e.s)))
-		newLine, parsedLbs, matches := pipeline.ProcessString(e.t, e.s)
+		newLine, parsedLbs, matches := pipeline.ProcessString(e.t, e.s, e.metaLabels...)
 		if !matches {
 			return
 		}
@@ -1136,6 +1136,7 @@ func (hb *headBlock) SampleIterator(ctx context.Context, mint, maxt int64, extra
 
 	for _, e := range hb.entries {
 		stats.AddHeadChunkBytes(int64(len(e.s)))
+		// TODO: Support metadata in samples
 		value, parsedLabels, ok := extractor.ProcessString(e.t, e.s)
 		if !ok {
 			continue
@@ -1481,7 +1482,7 @@ func (e *entryBufferedIterator) Next() bool {
 			metaLabels[i/2].Value = string(e.currMetadataLabels[i+1])
 		}
 
-		newLine, lbs, matches := e.pipeline.Process(e.currTs, e.currLine)
+		newLine, lbs, matches := e.pipeline.Process(e.currTs, e.currLine, metaLabels...)
 		if !matches {
 			continue
 		}
@@ -1514,6 +1515,7 @@ type sampleBufferedIterator struct {
 
 func (e *sampleBufferedIterator) Next() bool {
 	for e.bufferedIterator.Next() {
+		// TODO: Support metadata labels for samples.
 		val, labels, ok := e.extractor.Process(e.currTs, e.currLine)
 		if !ok {
 			continue

@@ -243,7 +243,7 @@ func (hb *unorderedHeadBlock) Iterator(
 		maxt,
 		func(ts int64, line string, metaLabels labels.Labels) error {
 			// TODO: This should go to a separate PR
-			newLine, parsedLbs, matches := pipeline.ProcessString(ts, line)
+			newLine, parsedLbs, matches := pipeline.ProcessString(ts, line, metaLabels...)
 			if !matches {
 				return nil
 			}
@@ -293,6 +293,7 @@ func (hb *unorderedHeadBlock) SampleIterator(
 		mint,
 		maxt,
 		func(ts int64, line string, metaLabels labels.Labels) error {
+			// TODO: Support metadata labels in samples
 			value, parsedLabels, ok := extractor.ProcessString(ts, line)
 			if !ok {
 				return nil
