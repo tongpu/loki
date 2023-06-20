@@ -397,9 +397,9 @@ func (t *UDPTransport) acceptPackets() {
 
 	for {
 		if !t.Ready() {
+			level.Info(t.logger).Log("msg", "syslog server shutting down", "protocol", protocolUDP, "err", t.ctx.Err())
 			t.mtx.Lock()
 			defer t.mtx.Unlock()
-			level.Info(t.logger).Log("msg", "syslog server shutting down", "protocol", protocolUDP, "err", t.ctx.Err())
 			for _, stream := range t.streams {
 				if err = stream.Close(); err != nil {
 					level.Error(t.logger).Log("msg", "failed to close pipe", "err", err)
@@ -424,6 +424,7 @@ func (t *UDPTransport) acceptPackets() {
 		if _, err := stream.Write(buf[:n]); err != nil {
 			level.Warn(t.logger).Log("msg", "failed to write to stream", "addr", addr, "err", err)
 		}
+		defer t.mtx.Unlock()
 	}
 }
 
