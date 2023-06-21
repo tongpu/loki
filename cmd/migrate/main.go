@@ -339,62 +339,76 @@ func (m *chunkMover) moveChunks(ctx context.Context, threadID int, syncRangeCh <
 						keys = append(keys, key)
 						chks = append(chks, chk)
 					}
-					for retry := 10; retry >= 0; retry-- {
-						chks, err = f.FetchChunks(m.ctx, chks, keys)
-						if err != nil {
-							if retry == 0 {
-								log.Println(threadID, "Final error retrieving chunks, giving up:", err)
-								errCh <- err
-								return
-							}
-							log.Println(threadID, "Error fetching chunks, will retry:", err)
-							time.Sleep(5 * time.Second)
-						} else {
-							break
-						}
-					}
 
-					totalChunks += uint64(len(chks))
-
-					output := make([]chunk.Chunk, 0, len(chks))
-
-					// Calculate some size stats and change the tenant ID if necessary
-					for i, chk := range chks {
-						if enc, err := chk.Encoded(); err == nil {
-							totalBytes += uint64(len(enc))
-						} else {
-							log.Println(threadID, "Error encoding a chunk:", err)
-							errCh <- err
-							return
-						}
-						if m.sourceUser != m.destUser {
-							// Because the incoming chunks are already encoded, to change the username we have to make a new chunk
-							nc := chunk.NewChunk(m.destUser, chk.FingerprintModel(), chk.Metric, chk.Data, chk.From, chk.Through)
-							err := nc.Encode()
+					// Slices for a single item, not graceful
+					onekey := make([]string, 1, 1)
+					onechunk := make([]chunk.Chunk, 1, 1)
+					finalChks := make([]chunk.Chunk, 0, len(chunks))
+					for i := range chks {
+						for retry := 10; retry >= 0; retry-- {
+							onechunk[0] = chks[i]
+							onekey[0] = keys[i]
+							onechunk, err = f.FetchChunks(m.ctx, onechunk, onekey)
 							if err != nil {
-								log.Println(threadID, "Failed to encode new chunk with new user:", err)
-								errCh <- err
-								return
+								if retry == 0 {
+									log.Println(threadID, "Final error retrieving chunks, giving up:", err)
+									//errCh <- err
+									//return
+								}
+								log.Println(threadID, "Error fetching chunks, will retry:", err)
+								onechunk = make([]chunk.Chunk, 1, 1)
+								//time.Sleep(5 * time.Second)
+							} else {
+								break
 							}
-							output = append(output, nc)
-						} else {
-							output = append(output, chks[i])
 						}
+						finalChks = append(finalChks, onechunk[0])
+					}
 
-					}
-					for retry := 4; retry >= 0; retry-- {
-						err = m.dest.Put(m.ctx, output)
-						if err != nil {
-							if retry == 0 {
-								log.Println(threadID, "Final error sending chunks to new store, giving up:", err)
+					totalChunks += uint64(len(finalChks))
+					/// if we use this hack code, the code below needs to change to use finalChks as opposed to chks
+
+					/*
+						output := make([]chunk.Chunk, 0, len(chks))
+
+						// Calculate some size stats and change the tenant ID if necessary
+						for i, chk := range chks {
+							if enc, err := chk.Encoded(); err == nil {
+								totalBytes += uint64(len(enc))
+							} else {
+								log.Println(threadID, "Error encoding a chunk:", err)
 								errCh <- err
 								return
 							}
-							log.Println(threadID, "Error sending chunks to new store, will retry:", err)
-						} else {
-							break
+							if m.sourceUser != m.destUser {
+								// Because the incoming chunks are already encoded, to change the username we have to make a new chunk
+								nc := chunk.NewChunk(m.destUser, chk.FingerprintModel(), chk.Metric, chk.Data, chk.From, chk.Through)
+								err := nc.Encode()
+								if err != nil {
+									log.Println(threadID, "Failed to encode new chunk with new user:", err)
+									errCh <- err
+									return
+								}
+								output = append(output, nc)
+							} else {
+								output = append(output, chks[i])
+							}
+
 						}
-					}
+						for retry := 4; retry >= 0; retry-- {
+							err = m.dest.Put(m.ctx, output)
+							if err != nil {
+								if retry == 0 {
+									log.Println(threadID, "Final error sending chunks to new store, giving up:", err)
+									errCh <- err
+									return
+								}
+								log.Println(threadID, "Error sending chunks to new store, will retry:", err)
+							} else {
+								break
+							}
+						}
+					*/
 					//log.Println(threadID, "Batch sent successfully")
 				}
 			}
