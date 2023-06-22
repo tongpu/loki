@@ -340,29 +340,25 @@ func (m *chunkMover) moveChunks(ctx context.Context, threadID int, syncRangeCh <
 						chks = append(chks, chk)
 					}
 
-					// Slices for a single item, not graceful
-					onekey := make([]string, 1, 1)
-					onechunk := make([]chunk.Chunk, 1, 1)
-					finalChks := make([]chunk.Chunk, 0, len(chunks))
+					finalChks := make([]chunk.Chunk, len(chunks))
 					for i := range chks {
+						onechunk := []chunk.Chunk{chunks[i]}
+						onekey := []string{keys[i]}
 						for retry := 10; retry >= 0; retry-- {
-							onechunk[0] = chks[i]
-							onekey[0] = keys[i]
 							onechunk, err = f.FetchChunks(m.ctx, onechunk, onekey)
 							if err != nil {
 								if retry == 0 {
 									log.Println(threadID, "Final error retrieving chunks, giving up:", err)
-									//errCh <- err
-									//return
 								}
 								log.Println(threadID, "Error fetching chunks, will retry:", err)
-								onechunk = make([]chunk.Chunk, 1, 1)
+								onechunk = []chunk.Chunk{chunks[i]}
 								//time.Sleep(5 * time.Second)
 							} else {
 								break
 							}
 						}
-						finalChks = append(finalChks, onechunk[0])
+						fmt.Println(i)
+						finalChks[i] = onechunk[0]
 					}
 
 					totalChunks += uint64(len(finalChks))
