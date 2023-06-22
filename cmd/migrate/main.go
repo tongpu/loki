@@ -358,7 +358,7 @@ func (m *chunkMover) moveChunks(ctx context.Context, threadID int, syncRangeCh <
 								}
 								log.Println(threadID, "Error fetching chunks, will retry:", err)
 								onechunk = []chunk.Chunk{chunks[i]}
-								//time.Sleep(5 * time.Second)
+								time.Sleep(5 * time.Second)
 							} else {
 								break
 							}
