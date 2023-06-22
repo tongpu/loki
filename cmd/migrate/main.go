@@ -373,49 +373,45 @@ func (m *chunkMover) moveChunks(ctx context.Context, threadID int, syncRangeCh <
 
 					totalChunks += uint64(len(finalChks))
 
-					/*
-						output := make([]chunk.Chunk, 0, len(finalChks))
+					output := make([]chunk.Chunk, 0, len(finalChks))
 
-
-						// Calculate some size stats and change the tenant ID if necessary
-						for i, chk := range finalChks {
-							if enc, err := chk.Encoded(); err == nil {
-								totalBytes += uint64(len(enc))
-							} else {
-								log.Println(threadID, "Error encoding a chunk:", err)
+					// Calculate some size stats and change the tenant ID if necessary
+					for i, chk := range finalChks {
+						if enc, err := chk.Encoded(); err == nil {
+							totalBytes += uint64(len(enc))
+						} else {
+							log.Println(threadID, "Error encoding a chunk:", err)
+							errCh <- err
+							return
+						}
+						if m.sourceUser != m.destUser {
+							// Because the incoming chunks are already encoded, to change the username we have to make a new chunk
+							nc := chunk.NewChunk(m.destUser, chk.FingerprintModel(), chk.Metric, chk.Data, chk.From, chk.Through)
+							err := nc.Encode()
+							if err != nil {
+								log.Println(threadID, "Failed to encode new chunk with new user:", err)
 								errCh <- err
 								return
 							}
-							if m.sourceUser != m.destUser {
-								// Because the incoming chunks are already encoded, to change the username we have to make a new chunk
-								nc := chunk.NewChunk(m.destUser, chk.FingerprintModel(), chk.Metric, chk.Data, chk.From, chk.Through)
-								err := nc.Encode()
-								if err != nil {
-									log.Println(threadID, "Failed to encode new chunk with new user:", err)
-									errCh <- err
-									return
-								}
-								output = append(output, nc)
-							} else {
-								output = append(output, finalChks[i])
-							}
+							output = append(output, nc)
+						} else {
+							output = append(output, finalChks[i])
+						}
 
-						}
-						for retry := 4; retry >= 0; retry-- {
-							err = m.dest.Put(m.ctx, output)
-							if err != nil {
-								if retry == 0 {
-									log.Println(threadID, "Final error sending chunks to new store, giving up:", err)
-									errCh <- err
-									return
-								}
-								log.Println(threadID, "Error sending chunks to new store, will retry:", err)
-							} else {
-								break
+					}
+					for retry := 4; retry >= 0; retry-- {
+						err = m.dest.Put(m.ctx, output)
+						if err != nil {
+							if retry == 0 {
+								log.Println(threadID, "Final error sending chunks to new store, giving up:", err)
+								errCh <- err
+								return
 							}
+							log.Println(threadID, "Error sending chunks to new store, will retry:", err)
+						} else {
+							break
 						}
-					
-					*/
+					}
 
 					//log.Println(threadID, "Batch sent successfully")
 				}
