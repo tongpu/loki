@@ -199,7 +199,7 @@ func main() {
 			i++
 		}
 		// Everything processed, exit
-		cancelFunc()
+		close(syncChan)
 	}()
 
 	var processedChunks uint64
@@ -215,17 +215,18 @@ func main() {
 		log.Println("Exiting stats thread")
 	}()
 
-	// Wait for an error or the context to be canceled
-	select {
-	case <-cancelContext.Done():
-		log.Println("Received done call")
-	case err := <-errorChan:
-		log.Println("Received an error from processing thread, shutting down: ", err)
-		cancelFunc()
-	}
+	go func() {
+		err := <-errorChan
+		if err != nil {
+			log.Println("Received an error from processing thread, shutting down: ", err)
+			cancelFunc()
+		}
+	}()
+
 	log.Println("Waiting for threads to exit")
 	wg.Wait()
 	close(statsChan)
+	close(errorChan)
 	log.Println("All threads finished, stopping destination store (uploading index files for boltdb-shipper)")
 
 	// For boltdb shipper this is important as it will upload all the index files.
@@ -303,7 +304,11 @@ func (m *chunkMover) moveChunks(ctx context.Context, threadID int, syncRangeCh <
 		case <-ctx.Done():
 			log.Println(threadID, "Requested to be done, context cancelled, quitting.")
 			return
-		case sr := <-syncRangeCh:
+		case sr, ok := <-syncRangeCh:
+			if !ok {
+				log.Println(threadID, "work channel closed, quitting.")
+				return
+			}
 			start := time.Now()
 			var totalBytes uint64
 			var totalChunks uint64
