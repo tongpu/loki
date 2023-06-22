@@ -345,7 +345,7 @@ func (m *chunkMover) moveChunks(ctx context.Context, threadID int, syncRangeCh <
 						chks = append(chks, chk)
 					}
 
-					finalChks := make([]chunk.Chunk, len(chunks))
+					finalChks := make([]chunk.Chunk, 0, len(chunks))
 					for i := range chks {
 						onechunk := []chunk.Chunk{chunks[i]}
 						onekey := []string{keys[i]}
@@ -368,7 +368,7 @@ func (m *chunkMover) moveChunks(ctx context.Context, threadID int, syncRangeCh <
 							continue
 						}
 
-						finalChks[i] = onechunk[0]
+						finalChks = append(finalChks, onechunk[0])
 					}
 
 					totalChunks += uint64(len(finalChks))
