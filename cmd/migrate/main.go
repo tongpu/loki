@@ -344,7 +344,8 @@ func (m *chunkMover) moveChunks(ctx context.Context, threadID int, syncRangeCh <
 					for i := range chks {
 						onechunk := []chunk.Chunk{chunks[i]}
 						onekey := []string{keys[i]}
-						for retry := 10; retry >= 0; retry-- {
+						var retry int
+						for retry = 10; retry >= 0; retry-- {
 							onechunk, err = f.FetchChunks(m.ctx, onechunk, onekey)
 							if err != nil {
 								if retry == 0 {
@@ -357,7 +358,11 @@ func (m *chunkMover) moveChunks(ctx context.Context, threadID int, syncRangeCh <
 								break
 							}
 						}
-						fmt.Println(i)
+
+						if retry < 0 {
+							continue
+						}
+
 						finalChks[i] = onechunk[0]
 					}
 
