@@ -372,13 +372,13 @@ func (m *chunkMover) moveChunks(ctx context.Context, threadID int, syncRangeCh <
 					}
 
 					totalChunks += uint64(len(finalChks))
-					/// if we use this hack code, the code below needs to change to use finalChks as opposed to chks
 
 					/*
-						output := make([]chunk.Chunk, 0, len(chks))
+						output := make([]chunk.Chunk, 0, len(finalChks))
+
 
 						// Calculate some size stats and change the tenant ID if necessary
-						for i, chk := range chks {
+						for i, chk := range finalChks {
 							if enc, err := chk.Encoded(); err == nil {
 								totalBytes += uint64(len(enc))
 							} else {
@@ -397,7 +397,7 @@ func (m *chunkMover) moveChunks(ctx context.Context, threadID int, syncRangeCh <
 								}
 								output = append(output, nc)
 							} else {
-								output = append(output, chks[i])
+								output = append(output, finalChks[i])
 							}
 
 						}
@@ -414,7 +414,9 @@ func (m *chunkMover) moveChunks(ctx context.Context, threadID int, syncRangeCh <
 								break
 							}
 						}
+					
 					*/
+
 					//log.Println(threadID, "Batch sent successfully")
 				}
 			}
