@@ -293,8 +293,7 @@ func (hb *unorderedHeadBlock) SampleIterator(
 		mint,
 		maxt,
 		func(ts int64, line string, metaLabels labels.Labels) error {
-			// TODO: Support metadata labels in samples
-			value, parsedLabels, ok := extractor.ProcessString(ts, line)
+			value, parsedLabels, ok := extractor.ProcessString(ts, line, metaLabels...)
 			if !ok {
 				return nil
 			}
